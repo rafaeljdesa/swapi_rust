@@ -1,0 +1,2 @@
+[db]
+url = "mysql://swapi_user:swapi_pass@127.0.0.1:3306/swapi_db"
