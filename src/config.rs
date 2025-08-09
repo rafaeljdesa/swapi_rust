@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {
-    pub db: DatabaseSettings
+    pub db: DatabaseSettings,
 }
 
 #[derive(Debug, Deserialize)]

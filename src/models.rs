@@ -1,6 +1,6 @@
+use crate::schema::planets;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::schema::planets;
 
 #[derive(Queryable, Selectable, Insertable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = planets)]

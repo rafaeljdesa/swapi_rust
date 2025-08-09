@@ -5,7 +5,7 @@ pub struct SwapiPlanet {
     pub name: String,
     pub climate: String,
     pub terrain: String,
-    #[serde(rename = "orbital_period")] 
+    #[serde(rename = "orbital_period")]
     pub orbital_period_days: String,
 }
 
@@ -23,7 +23,7 @@ pub async fn fetch_planet_by_id(id: i32) -> Option<SwapiPlanet> {
         Ok(resp) => {
             println!("Status: {}", resp.status());
             resp
-        },
+        }
         Err(e) => {
             println!("Erro ao fazer request: {:?}", e);
             return None;
