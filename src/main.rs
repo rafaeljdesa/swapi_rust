@@ -8,8 +8,6 @@ mod repository;
 mod schema;
 mod swapi;
 
-use std::sync::Arc;
-
 use actix_web::{App, HttpServer, web};
 use config_loader::load_settings;
 use db::create_pool;
@@ -26,20 +24,25 @@ pub struct AppState {
 async fn main() -> std::io::Result<()> {
     let settings = load_settings();
     let pool = create_pool(&settings.db.url);
-    let repository = Arc::new(Repository::new(pool));
-    let feature_flag_manager = Arc::new(FeatureFlagManager::new().await);
+    let repository = web::Data::new(Repository::new(pool));
+    let feature_flag_manager = web::Data::new(FeatureFlagManager::new().await);
+    let app_state = web::Data::new(AppState {
+        sessions: RwLock::new(Vec::new()),
+    });
 
-    HttpServer::new(move || {
+    let address = "127.0.0.1";
+    let port = 8080;
+    let server = HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::from(repository.clone()))
-            .app_data(web::Data::from(feature_flag_manager.clone()))
-            .app_data(web::Data::new(AppState {
-                sessions: RwLock::new(Vec::new()),
-            }))
+            .app_data(repository.clone())
+            .app_data(feature_flag_manager.clone())
+            .app_data(app_state.clone())
             .service(handlers::get_planet_by_id)
             .service(handlers::ws_connect)
     })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+    .bind((address, port))?;
+
+    println!("🚀 Application is running at http://{address}:{port}");
+
+    server.run().await
 }

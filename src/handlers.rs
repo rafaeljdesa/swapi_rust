@@ -55,8 +55,11 @@ pub async fn get_planet_by_id(
         // Broadcast to all connected websocket sessions; drop closed ones
         let mut to_remove: Vec<usize> = Vec::new();
         let mut sessions = app_state.sessions.write().await;
+        println!("Session count for broadcasting: {}", sessions.len());
         for (idx, s) in sessions.iter_mut().enumerate() {
+            println!("Session found, broadcasting!");
             if s.text(format!("{:?}", &result)).await.is_err() {
+                println!("Session error, mark to clean!");
                 to_remove.push(idx);
             }
         }
@@ -90,6 +93,7 @@ pub async fn ws_connect(
     {
         let mut sessions = app_state.sessions.write().await;
         sessions.push(session.clone());
+        println!("Sessions count: {}", sessions.len());
     }
 
     // start task but don't wait for it
