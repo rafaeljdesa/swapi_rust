@@ -13,7 +13,22 @@ services:
       MYSQL_USER: swapi_user
       MYSQL_PASSWORD: swapi_pass
     volumes:
-      - db_data:/var/lib/mysql
+    - db_data:/var/lib/mysql
+    - ./sql/data.sql:/docker-entrypoint-initdb.d/data.sql
+
+  swapi_app:
+    build: .
+    container_name: swapi_app
+    depends_on:
+      - mysql
+    environment:
+      APP_ENV: prod
+      LAUNCHDARKLY_SDK_KEY: ${LAUNCHDARKLY_SDK_KEY}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config:/app/config
+      - ./sql:/app/sql
 
 volumes:
   db_data:

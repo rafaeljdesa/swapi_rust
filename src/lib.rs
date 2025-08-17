@@ -29,7 +29,7 @@ pub async fn run_server() -> std::io::Result<()> {
         sessions: RwLock::new(Vec::new()),
     });
 
-    let address = "127.0.0.1";
+    let address = "0.0.0.0";
     let port = 8080;
     let server = HttpServer::new(move || {
         App::new()
