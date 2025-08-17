@@ -1,19 +1,17 @@
-mod config;
-mod config_loader;
-mod db;
-mod feature_flags;
-mod handlers;
-mod models;
-mod repository;
-mod schema;
-mod swapi;
+mod api;
+mod client;
+mod domain;
+mod infrastructure;
 
 use actix_web::{App, HttpServer, web};
 use config_loader::load_settings;
-use db::create_pool;
 use dotenvy::dotenv;
 
-use crate::{feature_flags::FeatureFlagManager, repository::Repository};
+use crate::{
+    api::handlers,
+    domain::repository::Repository,
+    infrastructure::{config_loader, db_pool::create_pool, feature_flags::FeatureFlagManager},
+};
 use actix_ws::Session;
 use tokio::sync::RwLock;
 

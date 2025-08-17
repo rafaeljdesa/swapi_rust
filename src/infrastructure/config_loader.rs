@@ -1,6 +1,7 @@
-use crate::config::Settings;
 use config::{Config, File};
 use std::env;
+
+use crate::infrastructure::config_models::Settings;
 
 pub fn load_settings() -> Settings {
     let environment = env::var("APP_ENV").unwrap_or_else(|_| "dev".to_string());

@@ -1,6 +1,6 @@
 use crate::{
-    db::Pool,
-    models::{NewPlanet, Planet},
+    domain::entities::{NewPlanet, Planet},
+    infrastructure::db_pool::Pool,
 };
 use actix_web::{Error, error::ErrorInternalServerError};
 use diesel::{prelude::*, r2d2::PooledConnection};
@@ -19,7 +19,7 @@ impl Repository {
     pub fn find_planet_by_id(&self, planet_id: i32) -> Result<Option<Planet>, Error> {
         let mut conn = self.get_connection()?;
 
-        use crate::schema::planets::dsl::*;
+        use crate::infrastructure::db_schema::planets::dsl::*;
 
         planets
             .filter(swapi_id.eq(planet_id))
@@ -31,8 +31,8 @@ impl Repository {
     pub fn insert_planet(&self, new_planet: &NewPlanet) -> Result<Planet, Error> {
         let mut conn = self.get_connection()?;
 
-        use crate::schema::planets;
-        use crate::schema::planets::dsl::*;
+        use crate::infrastructure::db_schema::planets;
+        use crate::infrastructure::db_schema::planets::dsl::*;
         use diesel::Connection;
 
         let new_planet_copy = NewPlanet {

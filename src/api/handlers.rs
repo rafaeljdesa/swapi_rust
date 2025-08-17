@@ -1,9 +1,11 @@
 use crate::{
     AppState,
-    feature_flags::FeatureFlagManager,
-    models::{NewPlanet, Planet},
-    repository::Repository,
-    swapi,
+    client::swapi,
+    domain::{
+        entities::{NewPlanet, Planet},
+        repository::Repository,
+    },
+    infrastructure::feature_flags::FeatureFlagManager,
 };
 use actix_web::{
     Error, HttpRequest, HttpResponse, Result, error::ErrorInternalServerError, get, rt, web,
