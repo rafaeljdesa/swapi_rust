@@ -4,11 +4,18 @@ use crate::{
 };
 use actix_web::{Error, error::ErrorInternalServerError};
 use diesel::{prelude::*, r2d2::PooledConnection};
+use mockall::automock;
 
 type Connection = PooledConnection<diesel::r2d2::ConnectionManager<MysqlConnection>>;
 
+#[automock]
+pub trait PlanetRepository: Send + Sync {
+    fn find_planet_by_id(&self, planet_id: i32) -> Result<Option<Planet>, Error>;
+    fn insert_planet(&self, new_planet: &NewPlanet) -> Result<Planet, Error>;
+}
+
 pub struct Repository {
-    pool: Pool,
+    pool: Pool
 }
 
 impl Repository {
@@ -16,7 +23,14 @@ impl Repository {
         Repository { pool }
     }
 
-    pub fn find_planet_by_id(&self, planet_id: i32) -> Result<Option<Planet>, Error> {
+    fn get_connection(&self) -> Result<Connection, Error> {
+        let conn = self.pool.get().map_err(ErrorInternalServerError)?;
+        Ok(conn)
+    }
+}
+
+impl PlanetRepository for Repository {
+    fn find_planet_by_id(&self, planet_id: i32) -> Result<Option<Planet>, Error> {
         let mut conn = self.get_connection()?;
 
         use crate::infrastructure::db_schema::planets::dsl::*;
@@ -28,7 +42,7 @@ impl Repository {
             .map_err(ErrorInternalServerError)
     }
 
-    pub fn insert_planet(&self, new_planet: &NewPlanet) -> Result<Planet, Error> {
+    fn insert_planet(&self, new_planet: &NewPlanet) -> Result<Planet, Error> {
         let mut conn = self.get_connection()?;
 
         use crate::infrastructure::db_schema::planets;
@@ -57,10 +71,5 @@ impl Repository {
             .map_err(ErrorInternalServerError)?;
 
         Ok(planet)
-    }
-
-    fn get_connection(&self) -> Result<Connection, Error> {
-        let conn = self.pool.get().map_err(ErrorInternalServerError)?;
-        Ok(conn)
     }
 }

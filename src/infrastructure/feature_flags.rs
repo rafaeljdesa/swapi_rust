@@ -1,12 +1,18 @@
 use std::time::Duration;
 
 use launchdarkly_server_sdk::{Client, ConfigBuilder, ContextBuilder};
+use mockall::automock;
 
-pub struct FeatureFlagManager {
+#[automock]
+pub trait FeatureFlag: Send + Sync {
+    fn is_forcing_api_call(&self) -> bool; 
+}
+
+pub struct FeatureFlagLaunchDarkly {
     client: Client,
 }
 
-impl FeatureFlagManager {
+impl FeatureFlagLaunchDarkly {
     pub async fn new() -> Self {
         let sdk_key =
             std::env::var("LAUNCHDARKLY_SDK_KEY").expect("LAUNCHDARKLY_SDK_KEY env should be set");
@@ -31,10 +37,12 @@ impl FeatureFlagManager {
 
         println!("*** SDK successfully initialized.");
 
-        FeatureFlagManager { client }
+        FeatureFlagLaunchDarkly { client }
     }
+}
 
-    pub fn is_forcing_api_call(&self) -> bool {
+impl FeatureFlag for FeatureFlagLaunchDarkly {
+    fn is_forcing_api_call(&self) -> bool {
         let context = ContextBuilder::new("example-user-key")
             .kind("user")
             .name("Sandy")
